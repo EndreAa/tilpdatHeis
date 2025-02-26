@@ -1,6 +1,8 @@
 #pragma once
-#include <sensor>
+#include "sensors.h"
 
-void orders_register_order(sensor_button_value);
+void orders_register_order(bool sensor_button_value);
+void orders_approve_order();
+
 
 
