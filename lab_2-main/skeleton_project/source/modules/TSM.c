@@ -1,86 +1,96 @@
 #include "TSM.h"
 
 
-ElevatorState TSM_state_stop(StateEvent event)
+ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        // Setup for stop state.
+        queue_empty();
+        sm->elevator_direction = 0;
+        elevio_motorDirection(sm->elevator_direction);
         break;
     case event_execute:
-        // Example: remain in STOP state (or add logic to transition).
+        elevio_motorDirection(sm->elevator_direction);
+        elevio_stopLamp(1);
         return state_stop;
     case event_exit:
-        // Cleanup for stop state.
         break;
     }
     return state_stop;
 }
 
-ElevatorState TSM_state_move(StateEvent event)
+ElevatorState TSM_state_move(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        // Start motor, etc.
-        break;
+            sm->elevator_direction = movement_choose_direction(sm->target_floor, sm->current_floor);
+            elevio_motorDirection(sm->elevator_direction); 
+            break;
     case event_execute:
-        // Check if floor is reached. For demo, we immediately transition.
-        return state_deliver;
+        if (sm->target_floor == elevio_floorSensor()){
+            sm->elevator_direction = 0;
+            return state_deliver;
+        } else {
+            elevio_motorDirection(sm->elevator_direction);
+            return state_move;
+        }
     case event_exit:
-        // Stop motor, etc.
         break;
     }
     return state_move;
 }
 
 
-ElevatorState TSM_state_deliver(StateEvent event)
+ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        // Open doors, etc.
         break;
     case event_execute:
-        // Stay in deliver state or decide next transition.
-        return state_deliver;
+        if (door_deliver_to_floor() == 0){
+            return state_deliver;
+        } else {
+            queue_remove(sm->target_floor);
+            return state_move;
+        }
     case event_exit:
-        // Close doors, etc.
         break;
     }
     return state_deliver;
 }
 
-ElevatorState TSM_state_still(StateEvent event)
+ElevatorState TSM_state_still(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        // Open doors, etc.
         break;
     case event_execute:
-        // Stay in deliver state or decide next transition.
-        return state_deliver;
+        if (sm->target_floor != -1) { // A new order has been placed.
+            return state_move;
+        } else {
+            return state_still;
+        }
     case event_exit:
-        // Close doors, etc.
         break;
     }
     return state_still;
 }
 
 
-void callExit(ElevatorState state)
+void TSM_call_exit(ElevatorSM *sm, ElevatorState state)
 {
     switch (state) {
     case state_stop:
-        (void)TSM_state_stop(event_exit);
+        (void)TSM_state_stop(sm, event_exit);
         break;
     case state_move:
-        (void)TSM_state_move(event_exit);
+        (void)TSM_state_move(sm, event_exit);
         break;
     case state_deliver:
-        (void)TSM_state_deliver(event_exit);
+        (void)TSM_state_deliver(sm, event_exit);
         break;
     case state_still:
-        (void)TSM_state_still(event_exit);
+        (void)TSM_state_still(sm, event_exit);
         break;
     default:
         break;
@@ -88,47 +98,64 @@ void callExit(ElevatorState state)
 }
 
 
-void callEnter(ElevatorState state)
+void TSM_call_enter(ElevatorSM *sm, ElevatorState state)
 {
     switch (state) {
     case state_stop:
-        (void)TSM_state_stop(event_enter);
+        (void)TSM_state_stop(sm, event_enter);
         break;
     case state_move:
-        (void)TSM_state_move(event_enter);
+        (void)TSM_state_move(sm, event_enter);
         break;
     case state_deliver:
-        (void)TSM_state_deliver(event_enter);
+        (void)TSM_state_deliver(sm, event_enter);
+        break;
+    case state_still:
+        (void)TSM_state_still(sm, event_enter);
         break;
     default:
         break;
     }
 }
 
-/* Update function that dispatches the current state's EXECUTE event,
-   and handles transitions by calling EXIT on the old state and ENTER on the new state */
+
 ElevatorState TSM_update(ElevatorSM *sm)
 {
+    if (elevio_stopButton() == 1) {
+        if (sm->current_state != state_stop) {
+            TSM_call_exit(sm, sm->current_state);
+            TSM_call_enter(sm, state_stop);
+            sm->current_state = state_stop;
+        }
+        return state_stop;
+    } else {
+        if (sm->current_state == state_stop) {
+            TSM_call_exit(sm, state_stop);
+            TSM_call_enter(sm, state_still);
+            sm->current_state = state_still;
+        }
+    }
+
     ElevatorState old_state = sm->current_state; // lagrer currentState som oldState
     ElevatorState next_state = old_state; // i tilfellet ingenting endrer seg
 
-    switch (old_state) { // utfører logikken til staten
-    case state_stop:
-        next_state = TSM_state_stop(event_execute);
+    switch (old_state) { // utfører hovedfunksjonen til staten
+    case state_still:
+        next_state = TSM_state_still(sm, event_execute);
         break;
     case state_move:
-        next_state = TSM_state_move(event_execute);
+        next_state = TSM_state_move(sm, event_execute);
         break;
     case state_deliver:
-        next_state = TSM_state_deliver(event_execute);
+        next_state = TSM_state_deliver(sm, event_execute);
         break;
     default:
         break;
     }
 
     if (next_state != old_state) {
-        callExit(old_state);
-        callEnter(next_state);
+        TSM_call_exit(sm, old_state); // exit har ikke mye funskjonalitet for øyeblikket, men fint å ha med for skalerbarhet osv.
+        TSM_call_enter(sm, next_state);
         sm->current_state = next_state;
     }
 
