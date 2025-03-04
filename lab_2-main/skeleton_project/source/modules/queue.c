@@ -56,16 +56,55 @@ void queue_empty(Queue *q){
     q->queue_direction = -1; // not moving
 }
 
-void queue_sort_prioritize(Queue *q){
-    
-    // Sortering - Tilfeller: bestilling på veien (ascending, descending)
-    int temp;
-    // Retning opp
-    if(q->queue_direction == 1){
-        // sorter fra nåværende etasje
-        
+
+// Bestemmer neste etasje for heisen basert på køen
+int queue_get_next(Queue *q, int current_floor){
+    if(q->queue_size == 0) return -1; // Ingen bestillinger
+
+    int next = -1;
+
+    // 1. Sjekk bestillinger i bevegelsesretningen
+    for(int i = 0; i < q->queue_size; i++){
+        if ((q->queue_direction == 1 && q->queue_list[i] > current_floor) ||
+            (q->queue_direction == -1 && q->queue_list[i] < current_floor)) {
+            next = q->queue_list[i];
+            break;
+        }
     }
 
-    // Retning ned
+    // 2. Hvis ingen funnet, ta nærmeste bestilling
+    if (next == -1) {
+        next = q->queue_list[0]; // Prioriterer første i køen
+        q->queue_direction = (next > current_floor) ? 1 : -1; // Sett ny retning
+    }
 
+    return next;
+}
+
+// Sorterer køen for å prioritere bestillinger i riktig retning
+void queue_sort_prioritize(Queue *q){
+    int temp;
+    if(q->queue_direction == 1){
+        // Sorter stigende (laveste først)
+        for(int i = 0; i < q->queue_size - 1; i++){
+            for(int j = 0; j < q->queue_size - i - 1; j++){
+                if(q->queue_list[j] > q->queue_list[j + 1]){
+                    temp = q->queue_list[j];
+                    q->queue_list[j] = q->queue_list[j + 1];
+                    q->queue_list[j + 1] = temp;
+                }
+            }
+        }
+    } else if(q->queue_direction == -1){
+        // Sorter synkende (høyeste først)
+        for(int i = 0; i < q->queue_size - 1; i++){
+            for(int j = 0; j < q->queue_size - i - 1; j++){
+                if(q->queue_list[j] < q->queue_list[j + 1]){
+                    temp = q->queue_list[j];
+                    q->queue_list[j] = q->queue_list[j + 1];
+                    q->queue_list[j + 1] = temp;
+                }
+            }
+        }
+    }
 }
