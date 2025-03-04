@@ -1,5 +1,6 @@
 #pragma once
-#include "TSM.h"
+
+#include "elevator_types.h"
 
 /**
  * @brief Moves the elevator to the target floor, making sure to only move when 

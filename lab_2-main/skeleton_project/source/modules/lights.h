@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "TSM.h"
 
 /**
@@ -10,5 +10,7 @@
  * update the elevator_direction and access the target_floor.
  * @return bool Returns true when the elevator has reached the target floor.
  */
-void lights_last_floor_lamp(ElevatorSM *sm);
+// void lights_last_floor_lamp(ElevatorSM *sm);
+
+
 

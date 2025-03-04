@@ -5,7 +5,7 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        queue_empty();
+        // queue_empty();
         sm->elevator_direction = 0;
         elevio_motorDirection(sm->elevator_direction);
         break;
@@ -45,7 +45,7 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
         if (door_deliver_to_floor(sm) == 0){
             return state_deliver;
         } else {
-            queue_remove(sm->target_floor);
+            // queue_remove(sm->target_floor);
             return state_move;
         }
     case event_exit:
