@@ -1,5 +1,4 @@
-#ifndef TSM_H
-#define TSM_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -39,6 +38,7 @@ typedef struct {
     ElevatorState current_state;
     int target_floor;
     int elevator_direction;
+    int last_current_floor;
 } ElevatorSM;
 
 /**
@@ -115,5 +115,5 @@ void TSM_call_enter(ElevatorSM *sm, ElevatorState state);
  */
 ElevatorState TSM_update(ElevatorSM *sm);
 
-#endif
+
 

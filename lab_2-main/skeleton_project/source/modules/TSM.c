@@ -14,6 +14,7 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
         elevio_stopLamp(1);
         return state_stop;
     case event_exit:
+        elevio_stopLamp(0);
         break;
     }
     return state_stop;
@@ -23,17 +24,11 @@ ElevatorState TSM_state_move(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-            sm->elevator_direction = movement_choose_direction(sm->target_floor, sm->current_floor);
+            sm->elevator_direction = movement_choose_direction(sm);
             elevio_motorDirection(sm->elevator_direction); 
             break;
     case event_execute:
-        if (sm->target_floor == elevio_floorSensor()){
-            sm->elevator_direction = 0;
-            return state_deliver;
-        } else {
-            elevio_motorDirection(sm->elevator_direction);
-            return state_move;
-        }
+        movement_get_to_floor(sm);
     case event_exit:
         break;
     }
@@ -47,7 +42,7 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
     case event_enter:
         break;
     case event_execute:
-        if (door_deliver_to_floor() == 0){
+        if (door_deliver_to_floor(sm) == 0){
             return state_deliver;
         } else {
             queue_remove(sm->target_floor);
@@ -121,6 +116,13 @@ void TSM_call_enter(ElevatorSM *sm, ElevatorState state)
 
 ElevatorState TSM_update(ElevatorSM *sm)
 {
+    int sensor_floor = elevio_floorSensor();
+    if (sensor_floor != -1) {
+        sm->last_current_floor = sensor_floor;
+    }
+    elevio_floorIndicator(sm->last_current_floor);
+
+
     if (elevio_stopButton() == 1) {
         if (sm->current_state != state_stop) {
             TSM_call_exit(sm, sm->current_state);
