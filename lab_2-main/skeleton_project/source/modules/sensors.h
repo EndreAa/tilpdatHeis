@@ -2,7 +2,8 @@
 #include <stdbool.h>
 
 #define FLOORS 4
-#define BUTTONS 3 // Inside, outside, and ... ?
+#define BUTTONS 3 // Inside, outside_up, and outside_down
+
 
 typedef struct {
     bool sensor_stop_button;
