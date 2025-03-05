@@ -25,7 +25,7 @@ void queue_add(int new_order, int direction, Queue *q){
     }
 
     // sort the bitch
-    queue_sort_prioritize(q);
+    queue_sort(q);
 
 }
 
@@ -41,7 +41,6 @@ void queue_remove(int completed_order, Queue *q){
             q->queue_list[q->queue_size-1] = -1; // siste element blir -1
             q->queue_size--; // reduserer størrelsen, ikke sånn faktisk
         }
-        return; // stopper litt tidligere
     }
 }
 
@@ -82,7 +81,7 @@ int queue_get_next(Queue *q, int current_floor){
 }
 
 // Sorterer køen for å prioritere bestillinger i riktig retning
-void queue_sort_prioritize(Queue *q){
+void queue_sort(Queue *q){
     int temp;
     if(q->queue_direction == 1){
         // Sorter stigende (laveste først)

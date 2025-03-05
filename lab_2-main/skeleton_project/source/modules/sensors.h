@@ -1,6 +1,6 @@
 #pragma once
 #include <stdbool.h>
-#include "elevio.h"
+#include "elevator_types.h"
 
 #define FLOORS 4
 #define BUTTONS 3 // Inside, outside_up, and outside_down

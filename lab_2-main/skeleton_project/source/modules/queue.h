@@ -1,6 +1,4 @@
 #pragma once
-#include "orders.h"
-
 #define MAX_ORDERS 5
 
 
@@ -15,5 +13,6 @@ typedef struct {
 void queue_add(int new_order, int direction, Queue *q);
 void queue_remove(int completed_order, Queue *q);
 void queue_empty(Queue *q);
+int queue_get_next(Queue *q, int current_floor);
 void queue_sort(Queue *q);
 // maybe add init?
