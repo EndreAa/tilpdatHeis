@@ -5,8 +5,7 @@ void orders_register_order(ElevatorSM *sm) {
     for (int floor = 0; floor < FLOORS; floor++) {
         for (int button = 0; button < BUTTONS; button++) {
             if (sensors_is_button_pressed(&(sm->sensors), floor, button)) {
-                int direction = (button == 2) ? -1 : 1; 
-                queue_add(floor, sm); // endre på dette
+                queue_add(floor, sm,); // endre på dette
             }
         }
     }

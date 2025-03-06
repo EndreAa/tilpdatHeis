@@ -61,71 +61,119 @@ void queue_empty(Queue *q){
 }
 
 // sorting logic, ta hensyn til retning til heisen, hvor heisen er, og hvor bestillingene er
-
 void queue_sort(Queue *q) {
-    int temp_queue[MAX_ORDERS];
+    int temp_queue[MAX_ORDERS];  // Midlertidig liste for opp-bestillinger
     int temp_size = 0;
 
-    if (q->queue_direction == 0) return;  // If idle, no sorting needed
+    if (q->queue_direction == 0) return;  // Hvis heisen er på vent, trenger vi ikke sortere
 
-    // If moving up (1)
+    // Håndtering av opp-bestillinger hvis retningen er opp (1)
     if (q->queue_direction == 1) {
-        // Add up orders that are above the current floor
+        // Legg til bestillinger med type 2 (cab orders) og større enn current_floor i starten av lista
         for (int i = 0; i < FLOORS; i++) {
-            if (q->orders[i][0] && i > q->queue_current_floor) {  // Up orders above current floor
+            if (q->orders[i][2] && i > q->queue_current_floor) {  // Cab orders som er over current_floor
                 temp_queue[temp_size++] = i;
             }
         }
 
-        // Add down orders that are below the current floor
+        // Legg til opp-bestillinger som er over current_floor og ikke finnes i lista
         for (int i = 0; i < FLOORS; i++) {
-            if (q->orders[i][1] && i < q->queue_current_floor) {  // Down orders below current floor
-                temp_queue[temp_size++] = i;
+            if (q->orders[i][0] && i > q->queue_current_floor) {  // Opp-bestillinger som er over current_floor
+                int found = 0;
+                for (int j = 0; j < temp_size; j++) {
+                    if (temp_queue[j] == i) {
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found) {
+                    temp_queue[temp_size++] = i;  // Legg til bestillingen
+                }
             }
         }
 
-        // Add cab orders
-        for (int i = 0; i < FLOORS; i++) {
-            if (q->orders[i][2]) {  // Cab orders
-                temp_queue[temp_size++] = i;
+        // Sorter opp-bestillingene i stigende rekkefølge
+        for (int i = 0; i < temp_size - 1; i++) {
+            for (int j = i + 1; j < temp_size; j++) {
+                if (temp_queue[i] > temp_queue[j]) {
+                    int temp = temp_queue[i];
+                    temp_queue[i] = temp_queue[j];
+                    temp_queue[j] = temp;
+                }
             }
         }
     }
-    // If moving down (-1)
-    else if (q->queue_direction == -1) {
-        // Add down orders that are below the current floor
+    
+    // Håndtering av ned-bestillinger hvis retningen er ned (-1)
+    int temp_down[MAX_ORDERS];
+    int temp_down_size = 0;
+
+    if (q->queue_direction == -1) {
+        // Legg til ned-bestillinger som er under current_floor og ikke finnes i lista
         for (int i = FLOORS - 1; i >= 0; i--) {
-            if (q->orders[i][1] && i < q->queue_current_floor) {  // Down orders below current floor
-                temp_queue[temp_size++] = i;
+            if (q->orders[i][1] && i < q->queue_current_floor) {  // Ned-bestillinger som er under current_floor
+                int found = 0;
+                for (int j = 0; j < temp_down_size; j++) {
+                    if (temp_down[j] == i) {
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found) {
+                    temp_down[temp_down_size++] = i;  // Legg til bestillingen
+                }
             }
         }
-
-        // Add up orders that are above the current floor
-        for (int i = FLOORS - 1; i >= 0; i--) {
-            if (q->orders[i][0] && i > q->queue_current_floor) {  // Up orders above current floor
-                temp_queue[temp_size++] = i;
+        printf("current floor: %d\n", q->queue_current_floor);
+        print_list(temp_down, temp_down_size);
+        // Sorter ned-bestillingene i synkende rekkefølge
+        for (int i = 0; i < temp_down_size - 1; i++) {
+            for (int j = i + 1; j < temp_down_size; j++) {
+                if (temp_down[i] < temp_down[j]) {
+                    int temp = temp_down[i];
+                    temp_down[i] = temp_down[j];
+                    temp_down[j] = temp;
+                }
             }
         }
+    }   
 
-        // Add cab orders
-        for (int i = FLOORS - 1; i >= 0; i--) {
-            if (q->orders[i][2]) {  // Cab orders
-                temp_queue[temp_size++] = i;
-            }
-        }
-    }
 
-    // Copy the sorted queue back to the original queue
+    // Slå sammen opp- og ned-bestillinger
+    int final_queue[MAX_ORDERS];
+    int final_size = 0;
+
+    //legg til opp-bestillingene 
     for (int i = 0; i < temp_size; i++) {
-        q->queue_list[i] = temp_queue[i];
+        final_queue[final_size++] = temp_queue[i];
     }
-    q->queue_size = temp_size;  // Update queue size
+
+
+    //legg til ned-bestillingene 
+    for (int i = 0; i < temp_down_size; i++) {
+        final_queue[final_size++] = temp_down[i];
+    }
+
+    // Kopier den endelige listen tilbake til den originale køen
+    for (int i = 0; i < final_size; i++) {
+        q->queue_list[i] = final_queue[i];
+    }
+
+
+    q->queue_size = final_size;  // Oppdater køens størrelse
 }
 
 void print_queue(Queue *q) {
     printf("Queue (size %d): ", q->queue_size);
     for (int i = 0; i < q->queue_size; i++) {
         printf("%d ", q->queue_list[i]);
+    }
+    printf("\n");
+}
+
+void print_list(int *list, int size) {
+    for (int i = 0; i < size; i++) {
+        printf("%d ", list[i]);
     }
     printf("\n");
 }

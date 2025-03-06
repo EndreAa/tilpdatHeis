@@ -25,3 +25,4 @@ void queue_sort(Queue *q);
 // maybe add init?
 void queue_init(Queue *q);
 void print_queue(Queue *q);
+void print_list(int *list, int size);
