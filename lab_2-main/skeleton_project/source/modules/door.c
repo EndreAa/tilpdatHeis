@@ -3,8 +3,8 @@
 #include "door.h"
 
 
-#define DOOR_OPEN_TIME_MS 3000
-#define TIMER_CHECK_INTERVAL_MS 100
+const int DOOR_OPEN_TIME_MS = 3000;
+const int TIMER_CHECK_INTERVAL_MS = 100;
 
 static clock_t door_timer;
 static int door_is_open = 0;

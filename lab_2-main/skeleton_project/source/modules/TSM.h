@@ -7,6 +7,8 @@
 #include "driver.h"
 #include "movement.h"
 #include "door.h"
+#include "sensors.h"
+#include "orders.h"
 
 
 /**

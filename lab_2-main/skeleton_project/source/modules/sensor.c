@@ -1,6 +1,6 @@
 #include "sensors.h"
 
-// Updates sensor data
+
 void sensors_update(Sensors *sensors) {
     sensors->sensor_stop_button = elevio_stopButton();
     sensors->sensor_current_floor = elevio_floorSensor();
