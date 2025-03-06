@@ -1,32 +1,43 @@
 #include "queue.h"
+#include <stdio.h>  
 // every method is public
 
+// Vi prøver på nytt
 
-
-void queue_add(int new_order, int direction, Queue *q){
-    // sjekker om allerede eksisterer
-    for(int i = 0; i < q->queue_size; i++){
-        if(q->queue_list[i] == new_order){
-            return;
+// initialiserer køen
+void queue_init(Queue *q) {
+    for (int i = 0; i < FLOORS; i++) {
+        for (int j = 0; j < 3; j++) {
+            q->orders[i][j] = false;
         }
     }
+    for (int i = 0; i < MAX_ORDERS; i++) {
+        q->queue_list[i] = -1;
+    }
+    q->queue_size = 0;
+    q->queue_direction = 0; // potensielt hente disse fra en plass?
+    q->queue_current_floor = 0; // ...
+}
 
-    // Legg til bestilling
-    if(q->queue_size < MAX_ORDERS){
-        q->queue_list[q->queue_size] = new_order; // Ikke helt nødvendig, men gjør det skalerbart
-        q->queue_size++;
-        q->queue_direction = direction;
+
+// Legger til bestilling i køen
+void queue_add(int new_order, int button, Queue *q) {
+    if (new_order < 0 || new_order >= FLOORS) return;
+
+    // Set the corresponding order type (up, down, or cab)
+    q->orders[new_order][button] = true;
+
+    // Avoid dups
+    for (int i = 0; i < q->queue_size; i++) {
+        if (q->queue_list[i] == new_order) return;
     }
 
-    // Hvis første bestilling (eller eneste), gjør til prioritet
-    if(q->queue_size == 1){
-        q->queue_first_pri = new_order;
-        return;
+    // Add the order
+    if (q->queue_size < MAX_ORDERS) {
+        q->queue_list[q->queue_size++] = new_order;
     }
 
-    // sort the bitch
-    queue_sort(q);
-
+    queue_sort(q);  // Sort
 }
 
 
@@ -44,66 +55,77 @@ void queue_remove(int completed_order, Queue *q){
     }
 }
 
+
 void queue_empty(Queue *q){
-    // en easy fix her kan være:
-    for(int i = 0; i < MAX_ORDERS; ++i){
-        q->queue_list[i] = -1;
-    }
-    
-    q->queue_size = 0; // the queue is emptied, the size is zero
-    q->queue_first_pri = -1; // nothing is prioritized
-    q->queue_direction = -1; // not moving
+    queue_init(q);
 }
 
+// sorting logic, ta hensyn til retning til heisen, hvor heisen er, og hvor bestillingene er
 
-// Bestemmer neste etasje for heisen basert på køen
-int queue_get_next(Queue *q, int current_floor){
-    if(q->queue_size == 0) return -1; // Ingen bestillinger
+void queue_sort(Queue *q) {
+    int temp_queue[MAX_ORDERS];
+    int temp_size = 0;
 
-    int next = -1;
+    if (q->queue_direction == 0) return;  // If idle, no sorting needed
 
-    // 1. Sjekk bestillinger i bevegelsesretningen
-    for(int i = 0; i < q->queue_size; i++){
-        if ((q->queue_direction == 1 && q->queue_list[i] > current_floor) ||
-            (q->queue_direction == -1 && q->queue_list[i] < current_floor)) {
-            next = q->queue_list[i];
-            break;
-        }
-    }
-
-    // 2. Hvis ingen funnet, ta nærmeste bestilling
-    if (next == -1) {
-        next = q->queue_list[0]; // Prioriterer første i køen
-        q->queue_direction = (next > current_floor) ? 1 : -1; // Sett ny retning
-    }
-
-    return next;
-}
-
-// Sorterer køen for å prioritere bestillinger i riktig retning
-void queue_sort(Queue *q){
-    int temp;
-    if(q->queue_direction == 1){
-        // Sorter stigende (laveste først)
-        for(int i = 0; i < q->queue_size - 1; i++){
-            for(int j = 0; j < q->queue_size - i - 1; j++){
-                if(q->queue_list[j] > q->queue_list[j + 1]){
-                    temp = q->queue_list[j];
-                    q->queue_list[j] = q->queue_list[j + 1];
-                    q->queue_list[j + 1] = temp;
-                }
+    // If moving up (1)
+    if (q->queue_direction == 1) {
+        // Add up orders that are above the current floor
+        for (int i = 0; i < FLOORS; i++) {
+            if (q->orders[i][0] && i > q->queue_current_floor) {  // Up orders above current floor
+                temp_queue[temp_size++] = i;
             }
         }
-    } else if(q->queue_direction == -1){
-        // Sorter synkende (høyeste først)
-        for(int i = 0; i < q->queue_size - 1; i++){
-            for(int j = 0; j < q->queue_size - i - 1; j++){
-                if(q->queue_list[j] < q->queue_list[j + 1]){
-                    temp = q->queue_list[j];
-                    q->queue_list[j] = q->queue_list[j + 1];
-                    q->queue_list[j + 1] = temp;
-                }
+
+        // Add down orders that are below the current floor
+        for (int i = 0; i < FLOORS; i++) {
+            if (q->orders[i][1] && i < q->queue_current_floor) {  // Down orders below current floor
+                temp_queue[temp_size++] = i;
+            }
+        }
+
+        // Add cab orders
+        for (int i = 0; i < FLOORS; i++) {
+            if (q->orders[i][2]) {  // Cab orders
+                temp_queue[temp_size++] = i;
             }
         }
     }
+    // If moving down (-1)
+    else if (q->queue_direction == -1) {
+        // Add down orders that are below the current floor
+        for (int i = FLOORS - 1; i >= 0; i--) {
+            if (q->orders[i][1] && i < q->queue_current_floor) {  // Down orders below current floor
+                temp_queue[temp_size++] = i;
+            }
+        }
+
+        // Add up orders that are above the current floor
+        for (int i = FLOORS - 1; i >= 0; i--) {
+            if (q->orders[i][0] && i > q->queue_current_floor) {  // Up orders above current floor
+                temp_queue[temp_size++] = i;
+            }
+        }
+
+        // Add cab orders
+        for (int i = FLOORS - 1; i >= 0; i--) {
+            if (q->orders[i][2]) {  // Cab orders
+                temp_queue[temp_size++] = i;
+            }
+        }
+    }
+
+    // Copy the sorted queue back to the original queue
+    for (int i = 0; i < temp_size; i++) {
+        q->queue_list[i] = temp_queue[i];
+    }
+    q->queue_size = temp_size;  // Update queue size
+}
+
+void print_queue(Queue *q) {
+    printf("Queue (size %d): ", q->queue_size);
+    for (int i = 0; i < q->queue_size; i++) {
+        printf("%d ", q->queue_list[i]);
+    }
+    printf("\n");
 }
