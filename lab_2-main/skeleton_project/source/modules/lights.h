@@ -1,6 +1,7 @@
 #pragma once
-/*
-#include "TSM.h"
+
+#include "elevator_types.h"
+#include "driver.h"
 
 /**
  * @brief Moves the elevator to the target floor, making sure to only move when 
@@ -10,7 +11,8 @@
  * update the elevator_direction and access the target_floor.
  * @return bool Returns true when the elevator has reached the target floor.
  */
-// void lights_last_floor_lamp(ElevatorSM *sm);
+void lights_last_floor_lamp(ElevatorSM *sm);
 
+void lights_turn_on(int floor, int button);
 
-
+void lights_turn_off(int floor);

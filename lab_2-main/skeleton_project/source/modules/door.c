@@ -68,8 +68,6 @@ int door_deliver_to_floor(ElevatorSM *sm) {
     if (!door_is_open) {
         if (door_open(sm)) {
             door_timer_start(sm);
-        } else {
-            return 1; 
         }
     }
 

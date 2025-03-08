@@ -6,10 +6,7 @@
 
 // inkludert i denne header filen for å unngå circular dependancy
 typedef struct {
-    int queue_first_pri;
-    int queue_direction;
-    int queue_current_floor;
-    int queue_size; // comparing variable / max_orders
+    int queue_count; // antall bestillinger som venter på oppmerksomhet
     int queue_list[MAX_ORDERS]; // må initialiserere alle til -1
 } Queue;
 

@@ -17,22 +17,18 @@ void start_init(){
     ElevatorSM sm = {
         .current_state = state_still,
         .target_floor = -1,
-        .elevator_direction = 0,
+        .elevator_direction = 0, 
         .last_current_floor = initial_floor,
         .sensors = {
             .sensor_stop_button = elevio_stopButton(),
-            .sensor_current_floor = inital_floor,
+            .sensor_current_floor = initial_floor,
             .sensor_obstacle = false,
             .sensor_button_values = { { false } }  // Initialiserer hele 2D-arrayen med false
         },
-        .queue = {
-            .queue_first_pri = 0,
-            .queue_direction = 0,
-            .queue_current_floor = 0,
-            .queue_size = 0,
-            .queue_list = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
-        }
+        .queue = { .queue_count = 0},
     };
+
+    queue_init(&(sm.queue)); // setter alle verdiene til -1.
 
     while (start_complete){
         ElevatorState new_state = TSM_update(&sm);

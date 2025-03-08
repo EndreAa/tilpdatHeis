@@ -5,7 +5,7 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
-        queue_empty();
+        queue_empty(&(sm->queue));
         sm->elevator_direction = 0;
         elevio_motorDirection(sm->elevator_direction);
         break;
@@ -45,7 +45,8 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
         if (door_deliver_to_floor(sm) == 0){
             return state_deliver;
         } else {
-            queue_remove(sm->target_floor);
+            queue_remove(&(sm->queue), sm->target_floor);
+            lights_turn_off(sm->target_floor);
             return state_move;
         }
     case event_exit:
@@ -114,13 +115,12 @@ void TSM_call_enter(ElevatorSM *sm, ElevatorState state)
 }
 
 
-ElevatorState TSM_update(ElevatorSM *sm)
-{
+ElevatorState TSM_update(ElevatorSM *sm){
     int sensor_floor = elevio_floorSensor();
     if (sensor_floor != -1) {
         sm->last_current_floor = sensor_floor;
     }
-    elevio_floorIndicator(sm->last_current_floor);
+    lights_last_floor_lamp(sm->last_current_floor);
 
     if (elevio_stopButton() == 1) {
         if (sm->current_state != state_stop) {
@@ -135,10 +135,12 @@ ElevatorState TSM_update(ElevatorSM *sm)
             TSM_call_enter(sm, state_still);
             sm->current_state = state_still;
         }
+    }
     
 
     sensors_update(&(sm->sensors));
     orders_register_order(sm);
+    sm->target_floor = sm->queue.queue_list[0];
 
     ElevatorState old_state = sm->current_state; // lagrer currentState som oldState
     ElevatorState next_state = old_state; // i tilfellet ingenting endrer seg
@@ -158,11 +160,10 @@ ElevatorState TSM_update(ElevatorSM *sm)
     }
 
     if (next_state != old_state) {
-        TSM_call_exit(sm, old_state); // exit har ikke mye funskjonalitet for øyeblikket, men fint å ha med for skalerbarhet osv.
+        TSM_call_exit(sm, old_state);
         TSM_call_enter(sm, next_state);
         sm->current_state = next_state;
     }
 
     return next_state;
-}
 }
