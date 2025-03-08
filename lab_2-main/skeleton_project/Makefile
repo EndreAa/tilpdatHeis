@@ -3,10 +3,11 @@ COMPILER    = clang
 CFLAGS      = -Wall -g -std=gnu11 -fsanitize=address
 LDFLAGS     = -fsanitize=address
 
-SOURCEDIR = source
-OBJECTDIR = build
 
-# Explicitly list all source files
+SOURCEDIR   = .
+OBJECTDIR   = build
+
+
 SOURCES = door.c \
           lights.c \
           main.c \
@@ -18,7 +19,7 @@ SOURCES = door.c \
           start.c \
           TSM.c
 
-# Generate object file names from source files
+
 OBJECTS = $(addprefix $(OBJECTDIR)/, $(SOURCES:.c=.o))
 
 all: $(EXECUTABLE)
@@ -29,14 +30,14 @@ clean:
 	rm -f $(EXECUTABLE)
 	rm -rf $(OBJECTDIR)
 
-## executable depends on object files: link them
-$(EXECUTABLE): $(OBJECTS)
-	$(COMPILER) $^ -o $@ $(LDFLAGS)
 
-## object files depend on source files: compile them
-$(OBJECTDIR)/%.o: $(SOURCEDIR)/%.c
-	@mkdir -p $(@D)
-	$(COMPILER) -o $@ -c $(CFLAGS) $
+$(EXECUTABLE): $(OBJECTS)
+	$(COMPILER) $(OBJECTS) -o $@ $(LDFLAGS)
+
+
+$(OBJECTDIR)/%.o: %.c
+	@mkdir -p $(OBJECTDIR)
+	$(COMPILER) -c $(CFLAGS) $< -o $@
 
 .PHONY: all rebuild clean
 
