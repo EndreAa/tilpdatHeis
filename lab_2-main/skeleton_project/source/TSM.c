@@ -120,7 +120,7 @@ ElevatorState TSM_update(ElevatorSM *sm){
     if (sensor_floor != -1) {
         sm->last_current_floor = sensor_floor;
     }
-    lights_last_floor_lamp(sm->last_current_floor);
+    lights_last_floor_lamp(sm);
 
     if (elevio_stopButton() == 1) {
         if (sm->current_state != state_stop) {
