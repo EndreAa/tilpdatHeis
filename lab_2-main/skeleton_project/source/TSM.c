@@ -41,17 +41,28 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
 {
     switch (event) {
     case event_enter:
+        printf("DEBUG: Entering deliver state for floor %d\n", sm->target_floor);
         break;
     case event_execute:
-        if (door_deliver_to_floor(sm) == 0){
+        if (door_deliver_to_floor(sm) == 0) {
             return state_deliver;
         } else {
+            printf("DEBUG: Delivery completed for floor %d\n", sm->target_floor);
             queue_remove(&(sm->queue), sm->target_floor);
             lights_turn_off(sm->target_floor);
-            sm->target_floor = queue_peek(&(sm->queue)); 
-            return state_still;
+            
+            if (sm->queue.queue_count == 0) {
+                printf("DEBUG: Queue empty after delivery, moving to still state\n");
+                sm->target_floor = NO_ORDER;
+                return state_still;
+            } else {
+                sm->target_floor = sm->queue.queue_list[0];
+                printf("DEBUG: Next target floor: %d\n", sm->target_floor);
+                return state_move;
+            }
         }
     case event_exit:
+        printf("DEBUG: Exiting deliver state\n");
         break;
     }
     return state_deliver;
