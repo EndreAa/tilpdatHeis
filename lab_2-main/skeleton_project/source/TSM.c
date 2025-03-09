@@ -171,7 +171,6 @@ ElevatorState TSM_update(ElevatorSM *sm){
     printf("\n=== Begin TSM Update ===\n");
     printf("Current state: %d, Target floor: %d, Last floor: %d, Direction: %d\n",
            sm->current_state, sm->target_floor, sm->last_current_floor, sm->elevator_direction);
-    printf("Door status - Is open: %d\n", door_is_open);
     
     int sensor_floor = elevio_floorSensor();
     printf("Current floor sensor: %d\n", sensor_floor);
