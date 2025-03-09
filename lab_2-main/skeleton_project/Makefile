@@ -24,9 +24,6 @@ build/movement.o: source/movement.c
 build/orders.o: source/orders.c
 	$(COMPILER) -c $(CFLAGS) source/orders.c -o build/orders.o
 
-build/queue_test.o: source/queue_test.c
-	$(COMPILER) -c $(CFLAGS) source/queue_test.c -o build/queue_test.o
-
 build/queue.o: source/queue.c
 	$(COMPILER) -c $(CFLAGS) source/queue.c -o build/queue.o
 
