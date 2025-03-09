@@ -1,13 +1,11 @@
 #include "door.h"
 
-
 const int DOOR_OPEN_TIME_MS = 3000;
 const int TIMER_CHECK_INTERVAL_MS = 100;
 
-static clock_t door_timer;
+static struct timespec door_timer;
 static int door_is_open = 0;
 static int door_timer_active = 0;
-
 
 int door_open(ElevatorSM *sm) {
     int current_floor = elevio_floorSensor();
@@ -27,12 +25,12 @@ int door_close(ElevatorSM *sm) {
     
     if (elevio_obstruction() == 1) {
         was_obstructed = 1;
-        door_timer = clock();
+        clock_gettime(CLOCK_MONOTONIC, &door_timer);
         return 0;
     }
 
     if (was_obstructed) {
-        door_timer = clock(); 
+        clock_gettime(CLOCK_MONOTONIC, &door_timer); 
         was_obstructed = 0;   
         return 0;
     }
@@ -44,9 +42,8 @@ int door_close(ElevatorSM *sm) {
     return 1;
 }
 
-
 void door_timer_start(ElevatorSM *sm) {
-    door_timer = clock();
+    clock_gettime(CLOCK_MONOTONIC, &door_timer);
     door_timer_active = 1;
 }
 
@@ -55,14 +52,16 @@ int door_timer_expired(ElevatorSM *sm) {
         return 0;
     }
     
-    clock_t current_time = clock();
-    double elapsed_ms = (double)(current_time - door_timer) * 1000 / CLOCKS_PER_SEC;
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+    
+    long elapsed_ms = (current_time.tv_sec - door_timer.tv_sec) * 1000 +
+                      (current_time.tv_nsec - door_timer.tv_nsec) / 1000000;
     
     return elapsed_ms >= DOOR_OPEN_TIME_MS;
 }
 
 int door_deliver_to_floor(ElevatorSM *sm) {
-
     if (!door_is_open) {
         if (door_open(sm)) {
             door_timer_start(sm);
