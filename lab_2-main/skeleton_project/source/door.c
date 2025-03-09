@@ -1,13 +1,18 @@
 #include "door.h"
-
+#include <sys/time.h>
 
 const int DOOR_OPEN_TIME_MS = 3000;
 const int TIMER_CHECK_INTERVAL_MS = 100;
 
-static clock_t door_timer;
+static long door_timer;
 static int door_is_open = 0;
 static int door_timer_active = 0;
 
+static long get_current_time_ms() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000L + tv.tv_usec / 1000;
+}
 
 int door_open(ElevatorSM *sm) {
     int current_floor = elevio_floorSensor();
@@ -34,13 +39,13 @@ int door_close(ElevatorSM *sm) {
     if (elevio_obstruction() == 1) {
         printf("DEBUG [DOOR]: Door obstructed, resetting timer\n");
         was_obstructed = 1;
-        door_timer = clock();
+        door_timer = get_current_time_ms();
         return 0;
     }
 
     if (was_obstructed) {
         printf("DEBUG [DOOR]: Previously obstructed, resetting timer\n");
-        door_timer = clock(); 
+        door_timer = get_current_time_ms(); 
         was_obstructed = 0;   
         return 0;
     }
@@ -53,11 +58,10 @@ int door_close(ElevatorSM *sm) {
     return 1;
 }
 
-
 void door_timer_start(ElevatorSM *sm) {
-    door_timer = clock();
+    door_timer = get_current_time_ms();
     door_timer_active = 1;
-    printf("DEBUG [DOOR]: Timer started at %ld ms\n", (long)door_timer);
+    printf("DEBUG [DOOR]: Timer started at %ld ms\n", door_timer);
 }
 
 int door_timer_expired(ElevatorSM *sm) {
@@ -66,11 +70,10 @@ int door_timer_expired(ElevatorSM *sm) {
         return 0;
     }
     
-    clock_t current_time = clock();
-    double elapsed_ms = (double)(current_time - door_timer) * 1000 / CLOCKS_PER_SEC;
+    long current_time = get_current_time_ms();
+    long elapsed_ms = current_time - door_timer;
     
-    printf("DEBUG [DOOR]: Timer check - Elapsed: %.2f ms of %d ms\n", 
-           elapsed_ms, DOOR_OPEN_TIME_MS);
+    printf("DEBUG [DOOR]: Timer check - Elapsed: %ld ms of %d ms\n", elapsed_ms, DOOR_OPEN_TIME_MS);
     
     if (elapsed_ms >= DOOR_OPEN_TIME_MS) {
         printf("DEBUG [DOOR]: Timer EXPIRED\n");
@@ -98,7 +101,7 @@ int door_deliver_to_floor(ElevatorSM *sm) {
         printf("DEBUG [DOOR]: Timer expired, attempting to close door\n");
         if (door_close(sm)) {
             printf("DEBUG [DOOR]: Door closed, delivery complete\n");
-            return 1;  // Delivery completed
+            return 1;
         } else {
             printf("DEBUG [DOOR]: Could not close door, delivery continuing...\n");
         }
@@ -106,5 +109,6 @@ int door_deliver_to_floor(ElevatorSM *sm) {
         printf("DEBUG [DOOR]: Waiting for timer to expire\n");
     }
 
-    return 0;  // Delivery still in progress
+    return 0;
 }
+
