@@ -5,8 +5,8 @@ LDFLAGS = -fsanitize=address
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue_test.o build/queue.o build/sensor.o build/start.o build/TSM.o
-	$(COMPILER) build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue_test.o build/queue.o build/sensor.o build/start.o build/TSM.o -o $(EXECUTABLE) $(LDFLAGS)
+$(EXECUTABLE): build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o
+	$(COMPILER) build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o -o $(EXECUTABLE) $(LDFLAGS)
 
 build/door.o: source/door.c
 	mkdir -p build
