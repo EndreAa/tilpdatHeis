@@ -142,7 +142,7 @@ int queue_peek(Queue *queue) {
         printf("Peek - next floor is %d\n", queue->queue_list[0]);
         return queue->queue_list[0];
     }
-    printf(Peek - queue is empty\n");
+    printf("Peek - queue is empty\n");
     return NO_ORDER;
 }
 
