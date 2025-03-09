@@ -29,7 +29,7 @@ int door_close(ElevatorSM *sm);
  *
  * @param[in] sm Pointer to the elevator state machine
  */
-// void door_timer_start(ElevatorSM *sm);
+void door_timer_start(ElevatorSM *sm);
 
 /**
  * @brief Checks if the door timer has expired.
@@ -37,7 +37,7 @@ int door_close(ElevatorSM *sm);
  * @param[in] sm Pointer to the elevator state machine
  * @return 1 if timer has expired, 0 otherwise
  */
-// int door_timer_expired(ElevatorSM *sm);
+int door_timer_expired(ElevatorSM *sm);
 
 /**
  * @brief Main door control function for floor delivery. To be called my the state
