@@ -1,5 +1,5 @@
 #include "door.h"
-#include <sys/time.h>
+#include <time.h>
 
 const int DOOR_OPEN_TIME_MS = 3000;
 const int TIMER_CHECK_INTERVAL_MS = 100;
@@ -9,9 +9,9 @@ static int door_is_open = 0;
 static int door_timer_active = 0;
 
 static long get_current_time_ms() {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000L + tv.tv_usec / 1000;
+    struct timespec now;
+    timespec_get(&now, TIME_UTC);
+    return now.tv_sec * 1000L + now.tv_nsec / 1000000L;
 }
 
 int door_open(ElevatorSM *sm) {
@@ -84,8 +84,7 @@ int door_timer_expired(ElevatorSM *sm) {
 }
 
 int door_deliver_to_floor(ElevatorSM *sm) {
-    printf("DEBUG [DOOR]: door_deliver_to_floor - door_is_open: %d, timer_active: %d\n", 
-           door_is_open, door_timer_active);
+    printf("DEBUG [DOOR]: door_deliver_to_floor - door_is_open: %d, timer_active: %d\n", door_is_open, door_timer_active);
 
     if (!door_is_open) {
         printf("DEBUG [DOOR]: Door not open, attempting to open\n");
@@ -95,6 +94,11 @@ int door_deliver_to_floor(ElevatorSM *sm) {
         } else {
             printf("DEBUG [DOOR]: Failed to open door\n");
         }
+    }
+    
+    if (elevio_stopButton() == 1) {
+        printf("DEBUG [DOOR]: Stop button pressed, resetting timer\n");
+        door_timer_start(sm);
     }
 
     if (door_timer_expired(sm)) {
@@ -111,4 +115,5 @@ int door_deliver_to_floor(ElevatorSM *sm) {
 
     return 0;
 }
+
 
