@@ -155,7 +155,7 @@ ElevatorState TSM_update(ElevatorSM *sm){
         }
     }
 
-    if (elevio_stopButton == 1){
+    if (elevio_stopButton() == 1){
         elevio_stopLamp(1);
     } else {
         elevio_stopLamp(0);
