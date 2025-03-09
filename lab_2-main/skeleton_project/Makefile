@@ -5,12 +5,16 @@ LDFLAGS = -fsanitize=address
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o
-	$(COMPILER) build/door.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o -o $(EXECUTABLE) $(LDFLAGS)
+$(EXECUTABLE): build/door.o build/elevio.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o
+	$(COMPILER) build/door.o build/elevio.o build/lights.o build/main.o build/movement.o build/orders.o build/queue.o build/sensor.o build/start.o build/TSM.o -o $(EXECUTABLE) $(LDFLAGS)
 
 build/door.o: source/door.c
 	mkdir -p build
 	$(COMPILER) -c $(CFLAGS) source/door.c -o build/door.o
+
+build/elevio.o: source/driver/elevio.c
+	mkdir -p build
+	$(COMPILER) -c $(CFLAGS) source/driver/elevio.c -o build/elevio.o
 
 build/lights.o: source/lights.c
 	$(COMPILER) -c $(CFLAGS) source/lights.c -o build/lights.o
