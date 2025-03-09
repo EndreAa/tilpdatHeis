@@ -2,6 +2,8 @@
 
 #include "elevator_types.h"
 #include "driver.h"
+#include <stdio.h>
+#include <stdbool.h>
 
 /**
  * @brief Moves the elevator to the target floor, making sure to only move when 

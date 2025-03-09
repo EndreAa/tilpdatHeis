@@ -1,4 +1,6 @@
 #pragma once
+#include <stdio.h>
+#include <stdbool.h>
 
 #define FLOORS 4
 #define BUTTONS 3

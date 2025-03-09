@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <time.h>
 #include "door.h"
 
 
@@ -27,7 +25,7 @@ int door_open(ElevatorSM *sm) {
 int door_close(ElevatorSM *sm) {
     static int was_obstructed = 0;
     
-    if (elevio_obstruction()) {
+    if (elevio_obstruction() == 1) {
         was_obstructed = 1;
         door_timer = clock();
         return 0;

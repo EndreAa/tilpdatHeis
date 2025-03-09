@@ -1,6 +1,9 @@
 #pragma once
 
 #include "elevator_types.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <time.h>
 
 /**
  * @brief Opens the elevator door if the elevator is in a defined state (at a floor).
