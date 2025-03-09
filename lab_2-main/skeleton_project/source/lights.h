@@ -18,3 +18,5 @@ void lights_last_floor_lamp(ElevatorSM *sm);
 void lights_turn_on(int floor, int button);
 
 void lights_turn_off(int floor);
+
+void lights_turn_off_all_orders();

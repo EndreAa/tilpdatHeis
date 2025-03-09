@@ -29,8 +29,9 @@ void start_init(){
     };
 
     queue_init(&(sm.queue)); // setter alle verdiene til -1.
+    lights_turn_off_all_orders();
 
     while (start_complete){
-        ElevatorState new_state = TSM_update(&sm);
+        sm.current_state = TSM_update(&sm);
     }
 }

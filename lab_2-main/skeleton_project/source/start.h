@@ -4,6 +4,7 @@
 #include "TSM.h"
 #include "driver.h"
 #include "queue.h"
+#include "lights.h"
 #include <stdbool.h>
 #include <stdio.h>
 

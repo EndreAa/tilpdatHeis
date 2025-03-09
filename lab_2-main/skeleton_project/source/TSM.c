@@ -8,6 +8,7 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
         queue_empty(&(sm->queue));
         sm->elevator_direction = 0;
         elevio_motorDirection(sm->elevator_direction);
+        lights_turn_off_all_orders();
         break;
     case event_execute:
         elevio_motorDirection(sm->elevator_direction);
@@ -47,7 +48,8 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
         } else {
             queue_remove(&(sm->queue), sm->target_floor);
             lights_turn_off(sm->target_floor);
-            return state_move;
+            sm->target_floor = queue_peek(&(sm->queue)); 
+            return state_still;
         }
     case event_exit:
         break;
@@ -116,6 +118,11 @@ void TSM_call_enter(ElevatorSM *sm, ElevatorState state)
 
 
 ElevatorState TSM_update(ElevatorSM *sm){
+
+    printf("State: %d, Queue count: %d, Target floor: %d\n", 
+        sm->current_state, sm->queue.queue_count, sm->target_floor);
+    queue_print(&(sm->queue));
+
     int sensor_floor = elevio_floorSensor();
     if (sensor_floor != -1) {
         sm->last_current_floor = sensor_floor;
@@ -136,11 +143,21 @@ ElevatorState TSM_update(ElevatorSM *sm){
             sm->current_state = state_still;
         }
     }
-    
+
+    if (elevio_stopButton == 1){
+        elevio_stopLamp(1);
+    } else {
+        elevio_stopLamp(0);
+    }
 
     sensors_update(&(sm->sensors));
     orders_register_order(sm);
-    sm->target_floor = sm->queue.queue_list[0];
+    
+    if (sm->queue.queue_count > 0) {
+        sm->target_floor = sm->queue.queue_list[0];
+    } else {
+        sm->target_floor = NO_ORDER;
+    }
 
     ElevatorState old_state = sm->current_state; // lagrer currentState som oldState
     ElevatorState next_state = old_state; // i tilfellet ingenting endrer seg

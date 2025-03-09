@@ -15,10 +15,10 @@ ElevatorState movement_get_to_floor(ElevatorSM *sm){
 int movement_choose_direction(ElevatorSM *sm){
     if (sm->target_floor > sm->last_current_floor){ 
         return 1;
-    } else if (sm->target_floor == sm->last_current_floor){
-        return 0;
     } else if (sm->target_floor < sm->last_current_floor){
         return -1;
+    } else {
+        return 0;
     }
 }
 

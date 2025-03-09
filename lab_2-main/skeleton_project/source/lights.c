@@ -13,3 +13,11 @@ void lights_turn_off(int floor){
         elevio_buttonLamp(floor, i, 0);
     }
 }
+
+void lights_turn_off_all_orders(){
+    for (int i = 0; i < 3; ++i){
+        for (int j = 0; j < 4; ++j){
+            elevio_buttonLamp(j, i, 0);
+        }
+    }
+}
