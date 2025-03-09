@@ -12,7 +12,7 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
     case event_execute:
         elevio_motorDirection(sm->elevator_direction);
         elevio_stopLamp(1);
-        if (elevio_floorSensor != -1){
+        if (elevio_floorSensor() != -1){
             sm->target_floor = elevio_floorSensor();
             door_deliver_to_floor(sm);
         }
