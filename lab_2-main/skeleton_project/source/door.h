@@ -1,6 +1,7 @@
 #pragma once
 
 #include "elevator_types.h"
+#include "driver.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
