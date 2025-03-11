@@ -26,7 +26,7 @@ void start_init(){
             .sensor_button_values = { { false } }  // Initialiserer hele 2D-arrayen med false
         },
         .queue = { .queue_count = 0},
-        .door_opened_at_stop = 0,
+        .door_opened_at_stop = 0
     };
 
     queue_init(&(sm.queue)); // setter alle verdiene til -1.
