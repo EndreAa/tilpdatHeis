@@ -9,12 +9,20 @@ ElevatorState TSM_state_stop(ElevatorSM *sm, StateEvent event)
         elevio_motorDirection(sm->elevator_direction);
         lights_turn_off_all_orders();
         elevio_stopLamp(1);
+        if (elevio_floorSensor() != -1) {
+            door_open(sm);
+        }
         break;
     case event_execute:
         elevio_motorDirection(sm->elevator_direction);
+        elevio_stopLamp(1);
         return state_stop;
     case event_exit:
         elevio_stopLamp(0);
+        door_timer_start(sm);
+        if (elevio_floorSensor() == -1) {
+            door_close(sm);
+        }
         break;
     }
     return state_stop;
@@ -111,6 +119,14 @@ ElevatorState TSM_state_still(ElevatorSM *sm, StateEvent event)
         
     case event_execute:
         printf("Execute still state, target floor: %d, queue count: %d\n", sm->target_floor, sm->queue.queue_count);
+        
+        if (door_is_open && !door_timer_expired(sm)) {
+            return state_still;
+        }
+        
+        if (door_is_open && door_timer_expired(sm)) {
+            door_close(sm);
+        }
         
         if (sm->queue.queue_count > 0) {
             printf("Orders in queue, moving to move state\n");
