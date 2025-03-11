@@ -42,6 +42,11 @@ ElevatorState TSM_state_move(ElevatorSM *sm, StateEvent event)
             return state_still;
         }
         
+        if (sm->door_opened_at_stop) {
+            door_close(sm);
+            sm->door_opened_at_stop = 0;
+        }
+        
         sm->elevator_direction = movement_choose_direction(sm);
         printf("Chosen direction: %d\n", sm->elevator_direction);
         
@@ -74,6 +79,7 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
     switch (event) {
     case event_enter:
         printf("Entering deliver state for floor %d\n", sm->target_floor);
+        sm->door_opened_at_stop = 0;
         break;
         
     case event_execute:
@@ -124,6 +130,11 @@ ElevatorState TSM_state_still(ElevatorSM *sm, StateEvent event)
         printf("Execute still state, target floor: %d, queue count: %d\n", sm->target_floor, sm->queue.queue_count);
         
         if (sm->door_opened_at_stop) {
+            if (elevio_obstruction()) {
+                door_timer_start(sm);
+                return state_still;
+            }
+            
             if (!door_timer_expired(sm)) {
                 return state_still;
             } else {
