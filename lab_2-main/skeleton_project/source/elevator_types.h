@@ -54,5 +54,6 @@ typedef struct{
     int last_current_floor;
     Sensors sensors;
     Queue queue;
+    int door_opened_at_stop;
 } ElevatorSM;
 
