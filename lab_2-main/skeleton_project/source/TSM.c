@@ -42,7 +42,7 @@ ElevatorState TSM_state_move(ElevatorSM *sm, StateEvent event)
             return state_still;
         }
         
-        if (sm->door_opened_at_stop) {
+        if (sm->door_opened_at_stop == 1) {
             door_close(sm);
             sm->door_opened_at_stop = 0;
         }
@@ -80,6 +80,7 @@ ElevatorState TSM_state_deliver(ElevatorSM *sm, StateEvent event)
     case event_enter:
         printf("Entering deliver state for floor %d\n", sm->target_floor);
         sm->door_opened_at_stop = 0;
+        elevio_doorOpenLamp(sm->door_opened_at_stop);
         break;
         
     case event_execute:
@@ -129,7 +130,7 @@ ElevatorState TSM_state_still(ElevatorSM *sm, StateEvent event)
     case event_execute:
         printf("Execute still state, target floor: %d, queue count: %d\n", sm->target_floor, sm->queue.queue_count);
         
-        if (sm->door_opened_at_stop) {
+        if (sm->door_opened_at_stop == 1) {
             if (elevio_obstruction()) {
                 door_timer_start(sm);
                 return state_still;
