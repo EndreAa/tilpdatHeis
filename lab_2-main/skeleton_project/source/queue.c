@@ -54,11 +54,6 @@ void queue_add(ElevatorSM *sm, int new_order, int button) {
     printf("Queue before add: ");
     queue_print(queue);
     
-    if (queue_find_floor(queue, new_order) != -1) {
-        printf("Skipping duplicate order for floor %d\n", new_order);
-        return;
-    }
-    
     if (queue->queue_count >= MAX_ORDERS) {
         printf("Queue full, cannot add order for floor %d\n", new_order);
         return;
@@ -70,28 +65,37 @@ void queue_add(ElevatorSM *sm, int new_order, int button) {
     if (current_floor == -1) {
         current_floor = sm->last_current_floor;
     }
+
+    int existing_index = queue_find_floor(queue, new_order);
     
-    if (button == 2) {
-        queue_shift_right(queue, 0);
-        queue->queue_list[0] = new_order;
-        printf("Cabin call - prioritized to front\n");
-    }
-    else if (sm->current_state == state_move && current_direction != 0) {
+    if (sm->current_state == state_move && current_direction != 0) {
         if ((current_direction > 0 && new_order > current_floor && new_order < sm->target_floor) ||
             (current_direction < 0 && new_order < current_floor && new_order > sm->target_floor)) {
+            
+            if (existing_index != -1) {
+                queue_remove(queue, new_order);
+            }
+            
             queue_shift_right(queue, 0);
             queue->queue_list[0] = new_order;
             printf("On-the-way call - prioritized to front\n");
         } else {
+            if (existing_index == -1) {
+                queue->queue_list[queue->queue_count] = new_order;
+                queue->queue_count++;
+                printf("Regular call - added to end\n");
+            } else {
+                printf("Skipping duplicate order for floor %d\n", new_order);
+            }
+        }
+    } else {
+        if (existing_index == -1) {
             queue->queue_list[queue->queue_count] = new_order;
             queue->queue_count++;
             printf("Regular call - added to end\n");
+        } else {
+            printf("Skipping duplicate order for floor %d\n", new_order);
         }
-    }
-    else {
-        queue->queue_list[queue->queue_count] = new_order;
-        queue->queue_count++;
-        printf("Regular call - added to end\n");
     }
     
     printf("Queue after add: ");
