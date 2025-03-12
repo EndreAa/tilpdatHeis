@@ -12,12 +12,11 @@ void sensors_update(Sensors *sensors) {
     }
 }
 
-// Checks if a button is pressed
 bool sensors_is_button_pressed(Sensors *sensors, int floor, int button) {
     return sensors->sensor_button_values[floor][button];
 }
 
-// Retrieves current floor
+
 int sensors_get_current_floor(Sensors *sensors) {
     return sensors->sensor_current_floor;
 }
