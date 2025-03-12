@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief A module that registers orders.
+*/
+
 #pragma once
 #include "sensors.h"
 #include "queue.h"
