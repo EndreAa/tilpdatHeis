@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief Module that handles opening and closing the door,
+* including holding it open for 3 seconds and checking for obstructions.
+*/
 #pragma once
 
 #include "elevator_types.h"
