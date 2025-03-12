@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief A module that processes and updates sensor information.
+*/
+
 #pragma once
 #include <stdbool.h>
 #include <stdio.h>
