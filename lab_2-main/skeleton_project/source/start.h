@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief A module that initialises and sustain the elevator state machine.
+*/
+
 #pragma once
 
 #include "elevator_types.h"
