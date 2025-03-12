@@ -6,18 +6,24 @@
 #define BUTTONS 3
 #define MAX_ORDERS 5
 
-// inkludert i denne header filen for å unngå circular dependancy
+/**
+ * @estruct Queue
+ * @brief Contains the queue list for handling orders.
+ */
 typedef struct {
-    int queue_count; // antall bestillinger som venter på oppmerksomhet
-    int queue_list[MAX_ORDERS]; // må initialiserere alle til -1
+    int queue_count; /**< Amount of orders in the list */
+    int queue_list[MAX_ORDERS];  /**< The queue list, containing orders for the elevator to service */
 } Queue;
 
-// inkludert i denne header filen for å unngå circular dependancy
+/**
+ * @estruct Sensors
+ * @brief Contains the sensor information for the elevator. Useful for debugging in case of hardware problems.
+ */
 typedef struct {
-    bool sensor_stop_button;
-    int sensor_current_floor;
-    bool sensor_obstacle;
-    bool sensor_button_values[FLOORS][BUTTONS]; 
+    bool sensor_stop_button; /**< Stop button status */
+    int sensor_current_floor; /**< The elevators current floor */
+    bool sensor_obstacle; /**< Obsutruction status */
+    bool sensor_button_values[FLOORS][BUTTONS]; /**< A matrix containing the information for each of the order buttons in the elevator. */
 } Sensors;
 
 /**
