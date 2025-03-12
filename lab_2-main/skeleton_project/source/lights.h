@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief A module to be used to handle various
+* light functionality.
+*/
 #pragma once
 
 #include "elevator_types.h"
