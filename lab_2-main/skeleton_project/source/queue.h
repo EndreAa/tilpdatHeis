@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// Special value to indicate no order
 #define NO_ORDER -1
 
 /**
