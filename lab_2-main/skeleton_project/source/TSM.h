@@ -1,3 +1,9 @@
+/**
+* @file
+* @brief Main functionality for the elevator state machine.
+* Handles updating and switching between states.
+*/
+
 #pragma once
 
 #include <stdbool.h>
