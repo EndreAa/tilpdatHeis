@@ -1,3 +1,8 @@
+/**
+* @file
+* @brief A module to be used for handlinging the
+* movement of the elevator, particularly in servicing an order.
+*/
 #pragma once
 
 #include "elevator_types.h"
