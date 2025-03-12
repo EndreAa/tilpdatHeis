@@ -1,3 +1,9 @@
+/**
+* @file
+* @brief A module containing the queue functionality 
+* for handling and prioritising orders.
+*/
+
 #pragma once
 
 #include "elevator_types.h"
