@@ -69,15 +69,13 @@ void queue_add(ElevatorSM *sm, int new_order, int button) {
     int existing_index = queue_find_floor(queue, new_order);
     
     if (sm->current_state == state_move && current_direction != 0) {
-        // Check if this order is on the way AND going in the same direction
         bool is_on_the_way = (current_direction > 0 && new_order > current_floor && new_order < sm->target_floor) ||
                              (current_direction < 0 && new_order < current_floor && new_order > sm->target_floor);
                              
         bool same_direction = (current_direction > 0 && button == BUTTON_HALL_UP) || 
                               (current_direction < 0 && button == BUTTON_HALL_DOWN) ||
                               (button == BUTTON_CAB);
-        
-        // Prioritize if order is on the way AND (the button is inside cab OR button is same direction as elevator)
+
         if (is_on_the_way && same_direction) {
             if (existing_index != -1) {
                 queue_remove(queue, new_order);
