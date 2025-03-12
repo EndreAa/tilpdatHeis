@@ -15,8 +15,24 @@
  */
 void lights_last_floor_lamp(ElevatorSM *sm);
 
+/**
+ * @brief Turns on the correct order light when a button is pressed.
+ *
+ * @param floor The floor at which the order is placed
+ * @param button The type of button pressed (up, down, or cabin).
+ */
 void lights_turn_on(int floor, int button);
 
+/**
+ * @brief Turns off all order lights belonging to a give floor. To be used when order is
+ * completed on said floor.
+ *
+ * @param floor The floor in which lights should be turned off.
+ */
 void lights_turn_off(int floor);
 
+/**
+ * @brief Turns off all order lights. To be used for initilsation and if the stop button
+ * is pressed.
+ */
 void lights_turn_off_all_orders();
