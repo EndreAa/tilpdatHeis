@@ -1,6 +1,5 @@
 #include "orders.h"
 
-// Registers orders based on button presses
 void orders_register_order(ElevatorSM *sm) {
     for (int floor = 0; floor < FLOORS; floor++) {
         for (int button = 0; button < BUTTONS; button++) {
