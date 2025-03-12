@@ -1,3 +1,9 @@
+/**
+* @file
+* @brief Defines neccessary structs and enums
+* containing information about the elevator.
+*/
+
 #pragma once
 #include <stdio.h>
 #include <stdbool.h>
